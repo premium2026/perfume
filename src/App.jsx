@@ -14,19 +14,19 @@ import {
 } from "./supabaseClient";
 
 /* ============================================================
-   VOCUHE â€” tienda de perfumes de autor + sello de autenticidad
+   ESENCIA ORIGINAL — tienda de perfumes de autor + sello de autenticidad
    ============================================================
    Paleta:
-     fondo     #0F0D0C  (negro cÃ¡lido)
+     fondo     #0F0D0C  (negro cálido)
      superficie #181513
-     lÃ­nea     #3A332C
-     Ã¡mbar     #C08B3E  (acento)
-     Ã¡mbar-d   #8C6328
+     línea     #3A332C
+     ámbar     #C08B3E  (acento)
+     ámbar-d   #8C6328
      hueso     #EDE6DB
      hueso-mute#A89C8C
-     salvia    #7A8B6F  (vÃ¡lido)
-     terracota #A8504A  (invÃ¡lido)
-   TipografÃ­a:
+     salvia    #7A8B6F  (válido)
+     terracota #A8504A  (inválido)
+   Tipografía:
      display: 'Cormorant', serif
      cuerpo:  'Inter', sans-serif
      mono:    'JetBrains Mono', monospace
@@ -34,9 +34,9 @@ import {
 
 const FONTS_LINK = "https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap";
 
-const ADMIN_PASSWORD = "vocuhe2026";
+const ADMIN_PASSWORD = "esencia-original2026";
 
-const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sin O/0/I/1 para evitar confusiÃ³n
+const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sin O/0/I/1 para evitar confusión
 
 function generateCode() {
   let code = "";
@@ -55,7 +55,7 @@ function formatDate(iso) {
 }
 
 /* Los datos viven en Supabase (ver supabaseClient.js). No hay seed local:
-   el catÃ¡logo inicial ya fue insertado por supabase-setup.sql */
+   el catálogo inicial ya fue insertado por supabase-setup.sql */
 
 /* ============================================================ */
 
@@ -196,7 +196,7 @@ function Header({ view, setView, cartCount, isAdmin }) {
     <header style={S.header}>
       <div style={S.headerInner}>
         <button style={S.brand} onClick={() => setView("tienda")} aria-label="Ir al inicio">
-          VOCUHE
+          ESENCIA ORIGINAL
         </button>
         <nav style={S.nav}>
           <button
@@ -225,24 +225,24 @@ function Footer({ setView }) {
   return (
     <footer style={S.footer}>
       <div style={S.footerInner}>
-        <p style={S.footerText}>Vocuhe â€” perfumes de autor, hechos en lotes pequeÃ±os.</p>
+        <p style={S.footerText}>Esencia Original — perfumes de autor, hechos en lotes pequeños.</p>
         <button style={S.footerLink} onClick={() => setView("verificar")}>
-          Verificar un cÃ³digo de envase â†—
+          Verificar un código de envase ↗
         </button>
       </div>
     </footer>
   );
 }
 
-/* ---------------- Tienda (catÃ¡logo) ---------------- */
+/* ---------------- Tienda (catálogo) ---------------- */
 function Tienda({ products, onSelect, onAdd }) {
   return (
     <div>
       <section style={S.hero}>
-        <p style={S.heroEyebrow}>ColecciÃ³n actual</p>
+        <p style={S.heroEyebrow}>Colección actual</p>
         <h1 style={S.heroTitle}>Cada frasco lleva un sello.<br />Cada sello, una historia.</h1>
         <p style={S.heroSub}>
-          Fragancias formuladas y embotelladas en lotes pequeÃ±os. El cÃ³digo grabado en tu envase confirma que es nuestro, y solo nuestro.
+          Fragancias formuladas y embotelladas en lotes pequeños. El código grabado en tu envase confirma que es nuestro, y solo nuestro.
         </p>
       </section>
 
@@ -251,7 +251,7 @@ function Tienda({ products, onSelect, onAdd }) {
           <article key={p.id} style={S.card} onClick={() => onSelect(p)}>
             <div style={S.cardImageWrap}>
               <img src={p.image} alt={p.name} style={S.cardImage} />
-              {p.stock <= 5 && p.stock > 0 && <span style={S.lowStock}>Ãšltimas {p.stock} unidades</span>}
+              {p.stock <= 5 && p.stock > 0 && <span style={S.lowStock}>Últimas {p.stock} unidades</span>}
               {p.stock === 0 && <span style={S.outStock}>Agotado</span>}
             </div>
             <div style={S.cardBody}>
@@ -282,7 +282,7 @@ function Producto({ product, onAdd, onBack }) {
   return (
     <div style={S.productPage}>
       <button style={S.backLink} onClick={onBack}>
-        â† Volver al catÃ¡logo
+        ← Volver al catálogo
       </button>
       <div style={S.productGrid}>
         <div style={S.productImageWrap}>
@@ -305,7 +305,7 @@ function Producto({ product, onAdd, onBack }) {
           </p>
           <div style={S.authNote}>
             <p style={S.authNoteText}>
-              Cada unidad incluye un cÃ³digo de 8 caracteres grabado en la base del frasco. Tras la compra, podÃ©s verificarlo en
+              Cada unidad incluye un código de 8 caracteres grabado en la base del frasco. Tras la compra, podés verificarlo en
               "Verificar autenticidad".
             </p>
           </div>
@@ -340,7 +340,7 @@ function Carrito({ cart, products, setCart, codes, updateCodes, orders, updateOr
 
   const confirmPurchase = async () => {
     if (!buyer.name.trim() || !buyer.email.trim()) {
-      showToast("CompletÃ¡ nombre y email para continuar", "error");
+      showToast("Completá nombre y email para continuar", "error");
       return;
     }
 
@@ -352,7 +352,7 @@ function Carrito({ cart, products, setCart, codes, updateCodes, orders, updateOr
       for (let i = 0; i < item.qty; i++) {
         let available = await findOneAvailableCode(item.id);
         if (!available) {
-          // generar uno nuevo al vuelo si el lote se quedÃ³ corto
+          // generar uno nuevo al vuelo si el lote se quedó corto
           let newCode;
           do {
             newCode = generateCode();
@@ -419,9 +419,9 @@ function Carrito({ cart, products, setCart, codes, updateCodes, orders, updateOr
   if (items.length === 0 && step === "revisar") {
     return (
       <div style={S.emptyState}>
-        <p style={S.emptyTitle}>Tu carrito estÃ¡ vacÃ­o</p>
+        <p style={S.emptyTitle}>Tu carrito está vacío</p>
         <button style={S.primaryBtn} onClick={onDone}>
-          Ver catÃ¡logo
+          Ver catálogo
         </button>
       </div>
     );
@@ -434,10 +434,10 @@ function Carrito({ cart, products, setCart, codes, updateCodes, orders, updateOr
         <h2 style={S.confirmTitle}>Gracias, {lastOrder.buyer.name.split(" ")[0]}</h2>
         <p style={S.confirmText}>
           Tu pedido <span style={S.mono}>{lastOrder.id}</span> fue registrado por {formatARS(lastOrder.total)}. Te enviamos la
-          confirmaciÃ³n a {lastOrder.buyer.email}.
+          confirmación a {lastOrder.buyer.email}.
         </p>
         <div style={S.confirmCodes}>
-          <p style={S.confirmCodesLabel}>CÃ³digos asignados a tus envases</p>
+          <p style={S.confirmCodesLabel}>Códigos asignados a tus envases</p>
           {lastOrder.codes.map((c, idx) => (
             <div key={idx} style={S.confirmCodeRow}>
               <span style={S.mono}>{c.code}</span>
@@ -446,11 +446,11 @@ function Carrito({ cart, products, setCart, codes, updateCodes, orders, updateOr
           ))}
         </div>
         <p style={S.confirmHint}>
-          Este cÃ³digo tambiÃ©n vendrÃ¡ grabado en la base del frasco. Guardalo: podÃ©s usarlo en cualquier momento desde
+          Este código también vendrá grabado en la base del frasco. Guardalo: podés usarlo en cualquier momento desde
           "Verificar autenticidad".
         </p>
         <button style={S.primaryBtn} onClick={onDone}>
-          Volver al catÃ¡logo
+          Volver al catálogo
         </button>
       </div>
     );
@@ -471,7 +471,7 @@ function Carrito({ cart, products, setCart, codes, updateCodes, orders, updateOr
               </div>
               <div style={S.qtyControl}>
                 <button style={S.qtyBtn} onClick={() => updateQty(item.id, item.qty - 1)} aria-label="Quitar uno">
-                  âˆ’
+                  −
                 </button>
                 <span style={S.qtyValue}>{item.qty}</span>
                 <button
@@ -499,7 +499,7 @@ function Carrito({ cart, products, setCart, codes, updateCodes, orders, updateOr
       {step === "datos" && (
         <div style={S.checkoutForm}>
           <p style={S.checkoutNote}>
-            Esta es una demostraciÃ³n funcional. Para producciÃ³n real, este paso se conecta a un procesador de pagos (te lo
+            Esta es una demostración funcional. Para producción real, este paso se conecta a un procesador de pagos (te lo
             explico al final).
           </p>
           <label style={S.label}>Nombre completo</label>
@@ -558,8 +558,8 @@ function Verificador({ codes }) {
   return (
     <div style={S.verifyWrap}>
       <p style={S.heroEyebrow}>Sello de autenticidad</p>
-      <h2 style={S.sectionTitle}>VerificÃ¡ tu frasco</h2>
-      <p style={S.verifyHint}>IngresÃ¡ el cÃ³digo de 8 caracteres grabado en la base del envase.</p>
+      <h2 style={S.sectionTitle}>Verificá tu frasco</h2>
+      <p style={S.verifyHint}>Ingresá el código de 8 caracteres grabado en la base del envase.</p>
 
       <form onSubmit={check} style={S.verifyForm}>
         <input
@@ -574,7 +574,7 @@ function Verificador({ codes }) {
           autoCapitalize="characters"
         />
         <button style={S.primaryBtn} type="submit" disabled={checking}>
-          {checking ? "Verificandoâ€¦" : "Verificar"}
+          {checking ? "Verificando…" : "Verificar"}
         </button>
       </form>
 
@@ -597,11 +597,11 @@ function SealResult({ checking, result }) {
       >
         <div style={S.sealInner}>
           {checking ? (
-            <span style={S.sealIconNeutral}>Â·Â·Â·</span>
+            <span style={S.sealIconNeutral}>···</span>
           ) : valid ? (
-            <span style={S.sealIconValid}>âœ“</span>
+            <span style={S.sealIconValid}>✓</span>
           ) : (
-            <span style={S.sealIconInvalid}>âœ•</span>
+            <span style={S.sealIconInvalid}>✕</span>
           )}
         </div>
       </div>
@@ -610,24 +610,24 @@ function SealResult({ checking, result }) {
         <div style={S.sealText}>
           {valid ? (
             <>
-              <p style={S.sealTitleValid}>Original Esencia</p>
+              <p style={S.sealTitleValid}>Producto Original</p>
               <p style={S.sealSub}>
-                {result.entry.productName || "Tu producto"} Â· vendido el {formatDate(result.entry.soldAt)}
+                {result.entry.productName || "Tu producto"} · vendido el {formatDate(result.entry.soldAt)}
               </p>
               {(result.entry.buyerName) && (
                 <p style={S.sealBuyerName}>{result.entry.buyerName}</p>
               )}
               <p style={S.sealExclusive}>
                 Esta unidad pertenece a un lote limitado, formulado y embotellado a mano. Gracias por llevar una pieza
-                genuina de Esencia.
+                genuina de Esencia Original.
               </p>
             </>
           ) : (
             <>
-              <p style={S.sealTitleInvalid}>No pudimos confirmar este cÃ³digo</p>
+              <p style={S.sealTitleInvalid}>No pudimos confirmar este código</p>
               <p style={S.sealSub}>
-                RevisÃ¡ que estÃ© bien escrito. Si el cÃ³digo es correcto y no figura como vendido por nosotros, escribinos a
-                soporte@vocuhe.com.
+                Revisá que esté bien escrito. Si el código es correcto y no figura como vendido por nosotros, escribinos a
+                soporte@esenciaoriginal.com.
               </p>
             </>
           )}
@@ -654,9 +654,9 @@ function AdminLogin({ onSuccess, onBack }) {
   return (
     <div style={S.loginWrap}>
       <h2 style={S.sectionTitle}>Acceso de tienda</h2>
-      <p style={S.verifyHint}>Panel interno para gestionar precios, fotos, stock y lotes de cÃ³digos.</p>
+      <p style={S.verifyHint}>Panel interno para gestionar precios, fotos, stock y lotes de códigos.</p>
       <form onSubmit={submit} style={S.checkoutForm}>
-        <label style={S.label}>ContraseÃ±a</label>
+        <label style={S.label}>Contraseña</label>
         <input
           style={S.input}
           type="password"
@@ -667,7 +667,7 @@ function AdminLogin({ onSuccess, onBack }) {
           }}
           autoFocus
         />
-        {error && <p style={S.errorText}>ContraseÃ±a incorrecta</p>}
+        {error && <p style={S.errorText}>Contraseña incorrecta</p>}
         <button style={S.primaryBtn} type="submit">
           Ingresar
         </button>
@@ -703,7 +703,7 @@ function AdminPanel({ products, updateProducts, codes, updateCodes, orders, show
       price: 0,
       stock: 0,
       image: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=800&q=80",
-      description: "DescripciÃ³n pendiente.",
+      description: "Descripción pendiente.",
     };
     await updateProducts([...products, newProduct], newProduct);
     setEditing(newProduct);
@@ -723,7 +723,7 @@ function AdminPanel({ products, updateProducts, codes, updateCodes, orders, show
           Productos
         </button>
         <button style={{ ...S.tab, ...(tab === "lotes" ? S.tabActive : {}) }} onClick={() => setTab("lotes")}>
-          Lotes de cÃ³digos
+          Lotes de códigos
         </button>
         <button style={{ ...S.tab, ...(tab === "pedidos" ? S.tabActive : {}) }} onClick={() => setTab("pedidos")}>
           Pedidos
@@ -742,7 +742,7 @@ function AdminPanel({ products, updateProducts, codes, updateCodes, orders, show
                 <div style={S.adminCardBody}>
                   <p style={S.adminCardName}>{p.name}</p>
                   <p style={S.adminCardMeta}>
-                    {formatARS(p.price)} Â· stock {p.stock}
+                    {formatARS(p.price)} · stock {p.stock}
                   </p>
                   <div style={S.adminCardActions}>
                     <button style={S.smallBtn} onClick={() => startEdit(p)}>
@@ -764,7 +764,7 @@ function AdminPanel({ products, updateProducts, codes, updateCodes, orders, show
               <input style={S.input} value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} />
               <label style={S.label}>Notas olfativas</label>
               <input style={S.input} value={editing.notes} onChange={(e) => setEditing({ ...editing, notes: e.target.value })} />
-              <label style={S.label}>DescripciÃ³n</label>
+              <label style={S.label}>Descripción</label>
               <textarea
                 style={S.textarea}
                 value={editing.description}
@@ -810,7 +810,7 @@ function AdminPanel({ products, updateProducts, codes, updateCodes, orders, show
 
       {tab === "pedidos" && (
         <div style={S.ordersList}>
-          {orders.length === 0 && <p style={S.emptyTitle}>TodavÃ­a no hay pedidos registrados.</p>}
+          {orders.length === 0 && <p style={S.emptyTitle}>Todavía no hay pedidos registrados.</p>}
           {orders.map((o) => (
             <div key={o.id} style={S.orderCard}>
               <div style={S.orderHeader}>
@@ -818,12 +818,12 @@ function AdminPanel({ products, updateProducts, codes, updateCodes, orders, show
                 <span style={S.orderDate}>{formatDate(o.createdAt)}</span>
               </div>
               <p style={S.orderBuyer}>
-                {o.buyer.name} Â· {o.buyer.email}
+                {o.buyer.name} · {o.buyer.email}
               </p>
               <ul style={S.orderItems}>
                 {o.items.map((it, idx) => (
                   <li key={idx} style={S.orderItem}>
-                    {it.qty}Ã— {it.name} â€” {formatARS(it.price * it.qty)}
+                    {it.qty}× {it.name} — {formatARS(it.price * it.qty)}
                   </li>
                 ))}
               </ul>
@@ -864,7 +864,7 @@ function LotesPanel({ products, codes, updateCodes, showToast }) {
       }
     }
     await updateCodes([...codes, ...newOnes], newOnes);
-    showToast(`${qty} cÃ³digos generados`, "ok");
+    showToast(`${qty} códigos generados`, "ok");
   };
 
   const markAsSold = async () => {
@@ -887,10 +887,10 @@ function LotesPanel({ products, codes, updateCodes, showToast }) {
     setManualResult("ok");
     setManualCode("");
     setManualBuyer("");
-    showToast(`CÃ³digo ${clean} marcado como vendido`, "ok");
+    showToast(`Código ${clean} marcado como vendido`, "ok");
   };
 
-  const productName = (id) => products.find((p) => p.id === id)?.name || "â€”";
+  const productName = (id) => products.find((p) => p.id === id)?.name || "—";
 
   const summary = products.map((p) => {
     const total = codes.filter((c) => c.productId === p.id).length;
@@ -900,7 +900,7 @@ function LotesPanel({ products, codes, updateCodes, showToast }) {
 
   return (
     <div>
-      {/* â”€â”€ Generar lote â”€â”€ */}
+      {/* ── Generar lote ── */}
       <div style={S.batchForm}>
         <div style={{ flex: 1 }}>
           <label style={S.label}>Producto</label>
@@ -911,7 +911,7 @@ function LotesPanel({ products, codes, updateCodes, showToast }) {
           </select>
         </div>
         <div>
-          <label style={S.label}>Cantidad de cÃ³digos</label>
+          <label style={S.label}>Cantidad de códigos</label>
           <input
             style={{ ...S.input, width: 120 }}
             type="number" min={1} max={500}
@@ -922,27 +922,27 @@ function LotesPanel({ products, codes, updateCodes, showToast }) {
         <button style={S.primaryBtn} onClick={generateBatch}>Generar lote</button>
       </div>
 
-      {/* â”€â”€ Resumen por producto â”€â”€ */}
+      {/* ── Resumen por producto ── */}
       <div style={S.batchSummary}>
         {summary.map((s) => (
           <div key={s.id} style={S.batchSummaryRow}>
             <span style={S.batchSummaryName}>{s.name}</span>
             <span style={S.batchSummaryNums}>
-              {s.available} disponibles Â· {s.sold} vendidos Â· {s.total} generados
+              {s.available} disponibles · {s.sold} vendidos · {s.total} generados
             </span>
           </div>
         ))}
       </div>
 
-      {/* â”€â”€ Marcar vendido manualmente â”€â”€ */}
+      {/* ── Marcar vendido manualmente ── */}
       <div style={S.manualSellBox}>
-        <p style={S.editPanelTitle}>Marcar cÃ³digo como vendido manualmente</p>
+        <p style={S.editPanelTitle}>Marcar código como vendido manualmente</p>
         <p style={{ fontSize: 12, color: COLORS.boneMute, marginBottom: 16, lineHeight: 1.6 }}>
-          UsÃ¡ esto cuando vendÃ©s por WhatsApp, en persona o por cualquier canal fuera de la tienda web.
+          Usá esto cuando vendés por WhatsApp, en persona o por cualquier canal fuera de la tienda web.
         </p>
         <div style={S.manualSellForm}>
           <div style={{ flex: 1 }}>
-            <label style={S.label}>CÃ³digo del envase</label>
+            <label style={S.label}>Código del envase</label>
             <input
               style={{ ...S.input, fontFamily: monoFont, letterSpacing: "0.08em", textTransform: "uppercase" }}
               value={manualCode}
@@ -957,26 +957,26 @@ function LotesPanel({ products, codes, updateCodes, showToast }) {
               style={S.input}
               value={manualBuyer}
               onChange={(e) => setManualBuyer(e.target.value)}
-              placeholder="Ej: MarÃ­a GarcÃ­a  /  Para siempre tuyo"
+              placeholder="Ej: María García  /  Para siempre tuyo"
             />
           </div>
           <button style={{ ...S.primaryBtn, alignSelf: "flex-end" }} onClick={markAsSold}>
             Marcar vendido
           </button>
         </div>
-        {manualResult === "ok" && <p style={{ color: COLORS.sage, fontSize: 13, marginTop: 10 }}>âœ“ CÃ³digo marcado como vendido correctamente.</p>}
-        {manualResult === "notfound" && <p style={{ color: COLORS.terracotta, fontSize: 13, marginTop: 10 }}>âœ• No se encontrÃ³ ese cÃ³digo. VerificÃ¡ que estÃ© bien escrito.</p>}
-        {manualResult === "already" && <p style={{ color: COLORS.amber, fontSize: 13, marginTop: 10 }}>âš  Ese cÃ³digo ya estaba marcado como vendido.</p>}
+        {manualResult === "ok" && <p style={{ color: COLORS.sage, fontSize: 13, marginTop: 10 }}>✓ Código marcado como vendido correctamente.</p>}
+        {manualResult === "notfound" && <p style={{ color: COLORS.terracotta, fontSize: 13, marginTop: 10 }}>✕ No se encontró ese código. Verificá que esté bien escrito.</p>}
+        {manualResult === "already" && <p style={{ color: COLORS.amber, fontSize: 13, marginTop: 10 }}>⚠ Ese código ya estaba marcado como vendido.</p>}
       </div>
 
       <p style={S.batchHint}>
-        GenerÃ¡ los cÃ³digos antes de imprimir/grabar los envases. Al vender por la web, el sistema asigna automÃ¡ticamente
-        uno disponible; si vendÃ©s por otro canal, marcalo manualmente arriba.
+        Generá los códigos antes de imprimir/grabar los envases. Al vender por la web, el sistema asigna automáticamente
+        uno disponible; si vendés por otro canal, marcalo manualmente arriba.
       </p>
 
-      {/* â”€â”€ Listado de cÃ³digos â”€â”€ */}
+      {/* ── Listado de códigos ── */}
       <div style={S.codeTableWrap}>
-        <p style={S.editPanelTitle}>Ãšltimos cÃ³digos generados</p>
+        <p style={S.editPanelTitle}>Últimos códigos generados</p>
         <div style={S.codeTable}>
           {codes
             .slice().reverse().slice(0, 40)
