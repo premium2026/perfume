@@ -19,7 +19,7 @@ import {
 
 const FONTS_LINK = "https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap";
 
-const ADMIN_PASSWORD = "esencia2026";
+const ADMIN_PASSWORD = "esencia-original2026";
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 function generateCode() {
@@ -325,7 +325,7 @@ export default function App() {
     <div style={S.appShell}>
       <FontLoad />
       <Header view={view} setView={setView} cartCount={cart.reduce((a, i) => a + i.qty, 0)} isAdmin={isAdmin} t={t} lang={lang} setLang={setLang} />
-      <ExchangeRateBanner exchangeRate={exchangeRate} updateExchangeRate={updateExchangeRate} t={t} />
+      <ExchangeRateBanner exchangeRate={exchangeRate} t={t} />
       <main style={S.main}>
         {view === "tienda" && <Tienda products={products} onSelect={(p) => { setActiveProduct(p); setView("producto"); }} onAdd={addToCart} {...commonProps} />}
         {view === "producto" && activeProduct && <Producto product={activeProduct} onAdd={addToCart} onBack={() => setView("tienda")} {...commonProps} />}
@@ -360,33 +360,12 @@ function Price({ usd, exchangeRate, style = {} }) {
   );
 }
 
-/* ---- Banner tipo de cambio ---- */
-function ExchangeRateBanner({ exchangeRate, updateExchangeRate, t }) {
-  const [editing, setEditing] = useState(false);
-  const [val, setVal] = useState(String(exchangeRate));
-
-  const save = () => {
-    const n = parseFloat(val);
-    if (!isNaN(n) && n > 0) { updateExchangeRate(n); setEditing(false); }
-  };
-
+/* ---- Banner tipo de cambio (solo lectura para clientes) ---- */
+function ExchangeRateBanner({ exchangeRate, t }) {
   return (
     <div style={S.exchangeBanner}>
       <span style={S.exchangeLabel}>{t.exchangeLabel}</span>
-      {editing ? (
-        <>
-          <input style={S.exchangeInput} value={val} onChange={(e) => setVal(e.target.value)} onKeyDown={(e) => e.key === "Enter" && save()} autoFocus />
-          <button style={S.exchangeBtn} onClick={save}>✓</button>
-          <button style={S.exchangeBtnCancel} onClick={() => setEditing(false)}>✕</button>
-        </>
-      ) : (
-        <>
-          <span style={S.exchangeValue}>{formatARS(exchangeRate)}</span>
-          <button style={S.exchangeEditBtn} onClick={() => { setVal(String(exchangeRate)); setEditing(true); }}>
-            {t.edit} ✏️
-          </button>
-        </>
-      )}
+      <span style={S.exchangeValue}>{formatARS(exchangeRate)}</span>
       <span style={S.exchangeHint}>{t.exchangeHint}</span>
     </div>
   );
@@ -709,6 +688,10 @@ function AdminPanel({ products, updateProducts, codes, updateCodes, orders, show
   return (
     <div style={S.adminWrap}>
       <h2 style={S.sectionTitle}>{t.adminTitle}</h2>
+
+      {/* ── Tipo de cambio ── */}
+      <ExchangeRateEditor exchangeRate={exchangeRate} updateExchangeRate={updateExchangeRate} t={t} />
+
       <div style={S.tabs}>
         {["productos", "lotes", "pedidos"].map((tabId, i) => (
           <button key={tabId} style={{ ...S.tab, ...(tab === tabId ? S.tabActive : {}) }} onClick={() => setTab(tabId)}>
@@ -789,6 +772,43 @@ function AdminPanel({ products, updateProducts, codes, updateCodes, orders, show
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function ExchangeRateEditor({ exchangeRate, updateExchangeRate, t }) {
+  const [val, setVal] = useState(String(exchangeRate));
+  const [saved, setSaved] = useState(false);
+
+  const save = () => {
+    const n = parseFloat(val);
+    if (!isNaN(n) && n > 0) {
+      updateExchangeRate(n);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    }
+  };
+
+  return (
+    <div style={S.exchangeEditorBox}>
+      <p style={S.editPanelTitle}>{t.exchangeRate}</p>
+      <p style={{ fontSize: 12, color: COLORS.boneMute, marginBottom: 14, lineHeight: 1.6 }}>
+        {t.exchangeHint}
+      </p>
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <span style={S.exchangeLabel}>{t.exchangeLabel}</span>
+        <input
+          style={S.exchangeInput}
+          value={val}
+          onChange={(e) => { setVal(e.target.value); setSaved(false); }}
+          onKeyDown={(e) => e.key === "Enter" && save()}
+          placeholder="1000"
+        />
+        <button style={S.primaryBtn} onClick={save}>
+          {saved ? "✓" : t.save}
+        </button>
+      </div>
+      {saved && <p style={{ color: COLORS.sage, fontSize: 12, marginTop: 10 }}>✓ Tipo de cambio actualizado. Los clientes ya ven el nuevo valor.</p>}
     </div>
   );
 }
@@ -932,7 +952,7 @@ const S = {
   langSep: { color: COLORS.line, fontSize: 11 },
   cartBtn: { background: "none", border: `1px solid ${COLORS.line}`, color: COLORS.bone, fontSize: 13, cursor: "pointer", padding: "8px 16px", borderRadius: 2, position: "relative", fontFamily: bodyFont },
   cartBadge: { position: "absolute", top: -8, right: -8, background: COLORS.amber, color: COLORS.bg, fontSize: 11, fontWeight: 600, borderRadius: "50%", width: 18, height: 18, display: "flex", alignItems: "center", justifyContent: "center" },
-  exchangeBanner: { background: COLORS.surface, borderBottom: `1px solid ${COLORS.line}`, padding: "8px 28px", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" },
+  exchangeEditorBox: { background: COLORS.surface, border: `1px solid ${COLORS.line}`, padding: "20px 24px", marginBottom: 28 },
   exchangeLabel: { fontSize: 12, color: COLORS.boneMute, fontFamily: monoFont },
   exchangeValue: { fontSize: 13, color: COLORS.amberLight, fontFamily: monoFont },
   exchangeInput: { background: COLORS.bg, border: `1px solid ${COLORS.amber}`, color: COLORS.bone, padding: "4px 10px", fontSize: 13, fontFamily: monoFont, width: 100, outline: "none" },
