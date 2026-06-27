@@ -11,6 +11,8 @@ import {
   loadOrders as dbLoadOrders,
   insertOrder as dbInsertOrder,
   updateStock,
+  loadExchangeRate,
+  saveExchangeRate,
 } from "./supabaseClient";
 
 /* ============================================================
@@ -19,7 +21,7 @@ import {
 
 const FONTS_LINK = "https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap";
 
-const ADMIN_PASSWORD = "esencia2026";
+const ADMIN_PASSWORD = "esencia-original2026";
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 function generateCode() {
@@ -29,10 +31,10 @@ function generateCode() {
 }
 
 function formatARS(n) {
-  return new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(n);
+  return "$ " + new Intl.NumberFormat("es-AR", { maximumFractionDigits: 0 }).format(n);
 }
 function formatUSD(n) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 }).format(n);
+  return "USD " + new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
 }
 function formatDate(iso, lang) {
   const locale = lang === "en" ? "en-US" : "es-AR";
@@ -238,17 +240,6 @@ const T = {
     total: "Total",
   },
 };
-
-/* ---------- helpers de tipo de cambio en Supabase ---------- */
-async function loadExchangeRate() {
-  try {
-    const res = await window.storage?.get("exchangeRate", true);
-    return res ? parseFloat(res.value) : 1000;
-  } catch { return 1000; }
-}
-async function saveExchangeRate(rate) {
-  try { await window.storage?.set("exchangeRate", String(rate), true); } catch {}
-}
 
 /* ============================================================ */
 

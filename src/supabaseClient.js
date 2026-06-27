@@ -163,3 +163,16 @@ export async function updateStock(productId, newStock) {
   const { error } = await supabase.from("products").update({ stock: newStock }).eq("id", productId);
   if (error) console.error("Error actualizando stock", error);
 }
+
+/* ---------- tipo de cambio ---------- */
+
+export async function loadExchangeRate() {
+  const { data, error } = await supabase.from("settings").select("value").eq("key", "exchange_rate").maybeSingle();
+  if (error || !data) return 1000;
+  return parseFloat(data.value);
+}
+
+export async function saveExchangeRate(rate) {
+  const { error } = await supabase.from("settings").upsert({ key: "exchange_rate", value: String(rate) });
+  if (error) console.error("Error guardando tipo de cambio", error);
+}
