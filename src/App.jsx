@@ -21,7 +21,7 @@ import {
 
 const FONTS_LINK = "https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap";
 
-const ADMIN_PASSWORD = "esencia2026";
+const ADMIN_PASSWORD = "esencia-original2026";
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 function generateCode() {
@@ -332,7 +332,7 @@ export default function App() {
             orders={orders} showToast={showToast} exchangeRate={exchangeRate} updateExchangeRate={updateExchangeRate} t={t} />
         )}
       </main>
-      <Footer setView={setView} t={t} />
+      <Footer setView={setView} t={t} isAdmin={isAdmin} />
       {toast && <Toast toast={toast} />}
     </div>
   );
@@ -369,9 +369,7 @@ function Header({ view, setView, cartCount, isAdmin, t, lang, setLang }) {
       <div style={S.headerInner}>
         <button style={S.brand} onClick={() => setView("tienda")}>{t.brand}</button>
         <nav style={S.nav}>
-          <button style={{ ...S.navLink, ...(view === "verificar" ? S.navLinkActive : {}) }} onClick={() => setView("verificar")}>{t.verifyNav}</button>
-          <button style={{ ...S.navLink, ...(view === "admin" || view === "admin-login" ? S.navLinkActive : {}) }} onClick={() => setView(isAdmin ? "admin" : "admin-login")}>{isAdmin ? t.panel : t.access}</button>
-          {/* Selector de idioma */}
+          <button style={{ ...S.navLink, ...S.navLinkVerify, ...(view === "verificar" ? S.navLinkActive : {}) }} onClick={() => setView("verificar")}>{t.verifyNav}</button>
           <div style={S.langSwitch}>
             <button style={{ ...S.langBtn, ...(lang === "es" ? S.langBtnActive : {}) }} onClick={() => setLang("es")}>ES</button>
             <span style={S.langSep}>|</span>
@@ -386,12 +384,15 @@ function Header({ view, setView, cartCount, isAdmin, t, lang, setLang }) {
   );
 }
 
-function Footer({ setView, t }) {
+function Footer({ setView, t, isAdmin }) {
   return (
     <footer style={S.footer}>
       <div style={S.footerInner}>
         <p style={S.footerText}>{t.footerText}</p>
-        <button style={S.footerLink} onClick={() => setView("verificar")}>{t.verifyFooter}</button>
+        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+          <button style={S.footerLink} onClick={() => setView("verificar")}>{t.verifyFooter}</button>
+          <button style={S.adminFooterBtn} onClick={() => setView(isAdmin ? "admin" : "admin-login")}>⚙</button>
+        </div>
       </div>
     </footer>
   );
@@ -936,6 +937,7 @@ const S = {
   brand: { fontFamily: displayFont, fontSize: 24, letterSpacing: "0.18em", background: "none", border: "none", color: COLORS.bone, cursor: "pointer", padding: 0, fontWeight: 500 },
   nav: { display: "flex", alignItems: "center", gap: 20 },
   navLink: { background: "none", border: "none", color: COLORS.boneMute, fontSize: 13, cursor: "pointer", padding: "6px 0", borderBottom: "1px solid transparent", fontFamily: bodyFont },
+  navLinkVerify: { fontSize: 15, color: COLORS.bone, fontWeight: 500, letterSpacing: "0.01em" },
   navLinkActive: { color: COLORS.amber, borderBottom: `1px solid ${COLORS.amber}` },
   langSwitch: { display: "flex", alignItems: "center", gap: 4, border: `1px solid ${COLORS.line}`, padding: "4px 8px" },
   langBtn: { background: "none", border: "none", color: COLORS.boneMute, fontSize: 12, cursor: "pointer", fontFamily: bodyFont, padding: "2px 4px" },
@@ -1079,6 +1081,7 @@ const S = {
   footerInner: { maxWidth: 1100, margin: "0 auto", padding: "28px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 },
   footerText: { fontSize: 12, color: COLORS.boneMute, margin: 0 },
   footerLink: { background: "none", border: "none", color: COLORS.amber, fontSize: 12, cursor: "pointer", padding: 0, fontFamily: bodyFont },
+  adminFooterBtn: { background: "none", border: "none", color: COLORS.line, fontSize: 14, cursor: "pointer", padding: "4px 6px", fontFamily: bodyFont, opacity: 0.5 },
   toast: { position: "fixed", bottom: 28, left: "50%", transform: "translateX(-50%)", background: COLORS.surfaceAlt, border: `1px solid ${COLORS.line}`, color: COLORS.bone, padding: "12px 22px", fontSize: 13, zIndex: 50 },
   toastOk: { borderColor: COLORS.sage, color: COLORS.sage },
   toastError: { borderColor: COLORS.terracotta, color: COLORS.terracotta },
