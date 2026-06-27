@@ -14,7 +14,7 @@ import {
 } from "./supabaseClient";
 
 /* ============================================================
-   ESENCIA ORIGINAL — tienda de perfumes de autor + sello de autenticidad
+   CLUVÉ — tienda de perfumes de autor + sello de autenticidad
    ============================================================
    Paleta:
      fondo     #0F0D0C  (negro cálido)
