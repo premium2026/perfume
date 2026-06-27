@@ -19,7 +19,7 @@ import {
 
 const FONTS_LINK = "https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap";
 
-const ADMIN_PASSWORD = "esencia-original2026";
+const ADMIN_PASSWORD = "esencia2026";
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 function generateCode() {
