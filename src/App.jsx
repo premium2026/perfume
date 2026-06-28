@@ -51,7 +51,7 @@ const T = {
     cart: "Carrito",
     collection: "Colección actual",
     heroTitle: "Cada frasco lleva un sello.\nCada sello, una historia.",
-    heroSub: "Fragancias formuladas y embotelladas en lotes pequeños. El código junto a tu envase te permite verificar que es nuestro, y solo nuestro.",
+    heroSub: "Fragancias formuladas y embotelladas en lotes pequeños. El código junto a tu envase te permite verificar que es original, y exclusivo.",
     lastUnits: (n) => `Últimas ${n} unidades`,
     soldOut: "Agotado",
     addToCart: "Agregar",
