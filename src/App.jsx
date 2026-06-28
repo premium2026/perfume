@@ -61,7 +61,7 @@ const T = {
     noStockBtn: "Sin stock por el momento",
     stockNote: (n) => `${n} unidades disponibles`,
     soonBack: "Volveremos a tener stock pronto",
-    authNote: "Cada unidad incluye un código de 8 caracteres grabado en la base del frasco. Tras la compra, podés verificarlo en \"Verificar autenticidad\".",
+    authNote: "Cada unidad incluye un código de 8 caracteres que acompaña a tu perfume. Tras la compra, podés asignar el nombre tuyo o un destinatario si es un obsequio, o bien, una frase que elijas y luego podrás verificarlo en \"Verificar autenticidad\".",
     cartTitle: "Tu carrito",
     emptyCart: "Tu carrito está vacío",
     seeCatalog: "Ver catálogo",
