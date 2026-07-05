@@ -344,7 +344,7 @@ export default function App() {
         {view === "tienda" && <Tienda products={products} onSelect={(p) => { setActiveProduct(p); setView("producto"); }} onAdd={addToCart} {...commonProps} />}
         {view === "producto" && activeProduct && <Producto product={activeProduct} onAdd={addToCart} onBack={() => setView("tienda")} {...commonProps} />}
         {view === "carrito" && (
-          <Carrito cart={cart} products={products} setCart={setCart} codes={codes} updateCodes={updateCodes}
+          <Carrito cart={cart} products={products} setCart={setCart} codes={codes} setCodes={setCodes} updateCodes={updateCodes}
             orders={orders} updateOrders={updateOrders} updateProducts={updateProducts}
             showToast={showToast} onDone={() => setView("tienda")} {...commonProps} />
         )}
@@ -481,7 +481,7 @@ function Producto({ product, onAdd, onBack, t, exchangeRate }) {
 }
 
 /* ---- Carrito ---- */
-function Carrito({ cart, products, setCart, codes, updateCodes, orders, updateOrders, updateProducts, showToast, onDone, t, lang, exchangeRate }) {
+function Carrito({ cart, products, setCart, codes, setCodes, updateCodes, orders, updateOrders, updateProducts, showToast, onDone, t, lang, exchangeRate }) {
   const [step, setStep] = useState("revisar");
   const [buyer, setBuyer] = useState({ name: "", email: "" });
   const [lastOrder, setLastOrder] = useState(null);
