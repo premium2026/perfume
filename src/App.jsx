@@ -66,8 +66,8 @@ const T = {
     emptyCart: "Tu carrito está vacío",
     seeCatalog: "Ver catálogo",
     continue: "Continuar",
-    checkoutNote: "Esta es una demostración funcional. Para producción real, este paso se conecta a un procesador de pagos.",
-    fullName: "Nombre completo",
+    checkoutNote: "",
+    fullName: "Escribe tu nombre, o el de quien quieras, o una frase, aparecerá cada vez que se verifique la autenticidad del perfume con el código que le asignaremos.",
     email: "Email",
     totalToPay: "Total a pagar",
     confirmBtn: "Confirmar compra",
@@ -146,6 +146,11 @@ const T = {
     pagoExitosoBtn: "Ver catálogo",
     pagoFallidoBtn: "Volver al carrito",
     verifyNow: "Verificar autenticidad →",
+    shippingAddress: "Dirección de envío",
+    shippingPlaceholder: "Calle, número, ciudad, provincia",
+    fillAddress: "Completá la dirección de envío",
+    yourCodes: "Tus códigos de autenticidad",
+    codeEmailSent: "También te enviamos los códigos por email.",
     perUnit: "c/u",
     total: "Total",
   },
@@ -172,8 +177,8 @@ const T = {
     emptyCart: "Your cart is empty",
     seeCatalog: "Browse catalog",
     continue: "Continue",
-    checkoutNote: "This is a functional demo. For real production, this step connects to a payment processor.",
-    fullName: "Full name",
+    checkoutNote: "",
+    fullName: "Write your name, or whoever you want, or a phrase — it will appear every time the perfume's authenticity is verified with the code we'll assign.",
     email: "Email",
     totalToPay: "Total to pay",
     confirmBtn: "Confirm order",
@@ -252,6 +257,11 @@ const T = {
     pagoExitosoBtn: "Browse catalog",
     pagoFallidoBtn: "Back to cart",
     verifyNow: "Verify authenticity →",
+    shippingAddress: "Shipping address",
+    shippingPlaceholder: "Street, number, city, province",
+    fillAddress: "Please fill in your shipping address",
+    yourCodes: "Your authenticity codes",
+    codeEmailSent: "We also sent your codes by email.",
     perUnit: "each",
     total: "Total",
   },
@@ -271,6 +281,7 @@ export default function App() {
   const [toast, setToast] = useState(null);
   const [lang, setLang] = useState("es");
   const [exchangeRate, setExchangeRate] = useState(1000);
+  const [returnOrder, setReturnOrder] = useState(null);
 
   const t = T[lang];
 
@@ -284,7 +295,29 @@ export default function App() {
       // Detectar retorno de Mercado Pago
       const params = new URLSearchParams(window.location.search);
       const pago = params.get("pago");
+      const orderId = params.get("order");
       if (pago) {
+        if (pago === "exitoso" && orderId) {
+          // Buscar el pedido para mostrar los códigos y enviar mail
+          const allOrders = await dbLoadOrders();
+          const found = allOrders.find((ord) => ord.id === orderId);
+          if (found) {
+            setReturnOrder(found);
+            // Enviar mail con códigos via Edge Function
+            fetch("https://apysmekdvsoxlcweclgw.supabase.co/functions/v1/create-preference", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFweXNtZWtkdnNveGxjd2VjbGd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwNzI4NTMsImV4cCI6MjA5NzY0ODg1M30.EjeHYMcziViW01gCyUwTZ1L3iFHlMGLsAR3PGiZK2Lc",
+              },
+              body: JSON.stringify({
+                codes: found.codes,
+                buyer: found.buyer,
+                orderId: found.id,
+              }),
+            }).catch(console.error);
+          }
+        }
         setView(pago === "exitoso" ? "pago-exitoso" : pago === "pendiente" ? "pago-pendiente" : "pago-fallido");
         window.history.replaceState({}, "", "/");
       }
@@ -349,9 +382,9 @@ export default function App() {
             showToast={showToast} onDone={() => setView("tienda")} {...commonProps} />
         )}
         {view === "verificar" && <Verificador codes={codes} {...commonProps} />}
-        {view === "pago-exitoso" && <PagoResultado tipo="exitoso" onDone={() => setView("tienda")} t={t} />}
-        {view === "pago-pendiente" && <PagoResultado tipo="pendiente" onDone={() => setView("tienda")} t={t} />}
-        {view === "pago-fallido" && <PagoResultado tipo="fallido" onDone={() => setView("carrito")} t={t} />}
+        {view === "pago-exitoso" && <PagoResultado tipo="exitoso" onDone={() => setView("tienda")} t={t} order={returnOrder} />}
+        {view === "pago-pendiente" && <PagoResultado tipo="pendiente" onDone={() => setView("tienda")} t={t} order={null} />}
+        {view === "pago-fallido" && <PagoResultado tipo="fallido" onDone={() => setView("carrito")} t={t} order={null} />}
         {view === "admin-login" && <AdminLogin onSuccess={() => { setIsAdmin(true); setView("admin"); }} onBack={() => setView("tienda")} t={t} />}
         {view === "admin" && isAdmin && (
           <AdminPanel products={products} updateProducts={updateProducts} codes={codes} updateCodes={updateCodes}
@@ -483,7 +516,7 @@ function Producto({ product, onAdd, onBack, t, exchangeRate }) {
 /* ---- Carrito ---- */
 function Carrito({ cart, products, setCart, codes, setCodes, updateCodes, orders, updateOrders, updateProducts, showToast, onDone, t, lang, exchangeRate }) {
   const [step, setStep] = useState("revisar");
-  const [buyer, setBuyer] = useState({ name: "", email: "" });
+  const [buyer, setBuyer] = useState({ name: "", email: "", address: "" });
   const [lastOrder, setLastOrder] = useState(null);
   const [processing, setProcessing] = useState(false);
 
@@ -496,7 +529,7 @@ function Carrito({ cart, products, setCart, codes, setCodes, updateCodes, orders
   };
 
   const confirmPurchase = async () => {
-    if (!buyer.name.trim() || !buyer.email.trim()) { showToast(t.fillFields, "error"); return; }
+    if (!buyer.name.trim() || !buyer.email.trim() || !buyer.address.trim()) { showToast(t.fillAddress, "error"); return; }
     setProcessing(true);
     try {
       const assigned = [], newlyInserted = [], updatedRows = [];
@@ -601,11 +634,13 @@ function Carrito({ cart, products, setCart, codes, setCodes, updateCodes, orders
       )}
       {step === "datos" && (
         <div style={S.checkoutForm}>
-          <p style={S.checkoutNote}>{t.checkoutNote}</p>
+          {t.checkoutNote && <p style={S.checkoutNote}>{t.checkoutNote}</p>}
           <label style={S.label}>{t.fullName}</label>
           <input style={S.input} value={buyer.name} onChange={(e) => setBuyer({ ...buyer, name: e.target.value })} />
           <label style={S.label}>{t.email}</label>
           <input style={S.input} type="email" value={buyer.email} onChange={(e) => setBuyer({ ...buyer, email: e.target.value })} />
+          <label style={S.label}>{t.shippingAddress}</label>
+          <input style={S.input} value={buyer.address} onChange={(e) => setBuyer({ ...buyer, address: e.target.value })} placeholder={t.shippingPlaceholder} />
           <div style={S.checkoutTotalRow}>
             <span>{t.totalToPay}</span>
             <Price usd={totalUSD} exchangeRate={exchangeRate} />
@@ -621,7 +656,7 @@ function Carrito({ cart, products, setCart, codes, setCodes, updateCodes, orders
 }
 
 /* ---- Resultado de pago (retorno desde MP) ---- */
-function PagoResultado({ tipo, onDone, t }) {
+function PagoResultado({ tipo, onDone, t, order }) {
   const exitoso = tipo === "exitoso";
   const pendiente = tipo === "pendiente";
   return (
@@ -635,6 +670,18 @@ function PagoResultado({ tipo, onDone, t }) {
       <p style={S.confirmText}>
         {exitoso ? t.pagoExitosoText : pendiente ? t.pagoPendienteText : t.pagoFallidoText}
       </p>
+      {exitoso && order && order.codes && (
+        <div style={S.confirmCodes}>
+          <p style={S.confirmCodesLabel}>{t.yourCodes}</p>
+          {order.codes.map((c, idx) => (
+            <div key={idx} style={S.confirmCodeRow}>
+              <span style={S.mono}>{c.code}</span>
+              <span style={S.confirmCodeProduct}>{c.productName}</span>
+            </div>
+          ))}
+          <p style={{ fontSize: 12, color: COLORS.boneMute, marginTop: 14, lineHeight: 1.6 }}>{t.codeEmailSent}</p>
+        </div>
+      )}
       <button style={S.primaryBtn} onClick={onDone}>
         {exitoso || pendiente ? t.pagoExitosoBtn : t.pagoFallidoBtn}
       </button>
