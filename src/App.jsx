@@ -525,7 +525,10 @@ function Carrito({ cart, products, setCart, codes, setCodes, updateCodes, orders
       // Crear preferencia en Mercado Pago via Supabase Edge Function
       const res = await fetch("https://apysmekdvsoxlcweclgw.supabase.co/functions/v1/create-preference", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFweXNtZWtkdnNveGxjd2VjbGd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwNzI4NTMsImV4cCI6MjA5NzY0ODg1M30.EjeHYMcziViW01gCyUwTZ1L3iFHlMGLsAR3PGiZK2Lc",
+        },
         body: JSON.stringify({
           items: items.map((i) => ({ id: i.id, name: i.name, qty: i.qty, price: i.price })),
           buyer,
