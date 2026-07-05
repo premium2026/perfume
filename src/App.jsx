@@ -137,7 +137,15 @@ const T = {
     exchangeLabel: "USD 1 =",
     exchangeHint: "Los precios se muestran en USD. El equivalente en ARS se calcula con este tipo de cambio.",
     footerText: "CLUVÉ — perfumes de autor, hechos en lotes pequeños.",
-    verifyFooter: "Verificar un código de envase ↗",
+    pagoExitosoTitle: "¡Pago confirmado!",
+    pagoExitosoText: "Tu pedido fue procesado correctamente. Los códigos de autenticidad de tus fragancias ya están activos.",
+    pagoPendienteTitle: "Pago pendiente",
+    pagoPendienteText: "Tu pago está siendo procesado. Te notificaremos cuando se confirme. Los códigos ya están reservados para vos.",
+    pagoFallidoTitle: "El pago no se completó",
+    pagoFallidoText: "Hubo un problema con el pago. Podés intentarlo nuevamente.",
+    pagoExitosoBtn: "Ver catálogo",
+    pagoFallidoBtn: "Volver al carrito",
+    verifyNow: "Verificar autenticidad →",
     perUnit: "c/u",
     total: "Total",
   },
@@ -235,7 +243,15 @@ const T = {
     exchangeLabel: "USD 1 =",
     exchangeHint: "Prices are shown in USD. The ARS equivalent is calculated using this exchange rate.",
     footerText: "CLUVÉ — author fragrances, made in small batches.",
-    verifyFooter: "Verify a bottle code ↗",
+    pagoExitosoTitle: "Payment confirmed!",
+    pagoExitosoText: "Your order was processed successfully. The authenticity codes for your fragrances are now active.",
+    pagoPendienteTitle: "Payment pending",
+    pagoPendienteText: "Your payment is being processed. We'll notify you once it's confirmed. Your codes are already reserved.",
+    pagoFallidoTitle: "Payment not completed",
+    pagoFallidoText: "There was a problem with your payment. You can try again.",
+    pagoExitosoBtn: "Browse catalog",
+    pagoFallidoBtn: "Back to cart",
+    verifyNow: "Verify authenticity →",
     perUnit: "each",
     total: "Total",
   },
@@ -265,6 +281,13 @@ export default function App() {
       setCodes(c);
       setOrders(o);
       setExchangeRate(rate);
+      // Detectar retorno de Mercado Pago
+      const params = new URLSearchParams(window.location.search);
+      const pago = params.get("pago");
+      if (pago) {
+        setView(pago === "exitoso" ? "pago-exitoso" : pago === "pendiente" ? "pago-pendiente" : "pago-fallido");
+        window.history.replaceState({}, "", "/");
+      }
       setLoading(false);
     })();
   }, []);
@@ -321,11 +344,14 @@ export default function App() {
         {view === "tienda" && <Tienda products={products} onSelect={(p) => { setActiveProduct(p); setView("producto"); }} onAdd={addToCart} {...commonProps} />}
         {view === "producto" && activeProduct && <Producto product={activeProduct} onAdd={addToCart} onBack={() => setView("tienda")} {...commonProps} />}
         {view === "carrito" && (
-          <Carrito cart={cart} products={products} setCart={setCart} codes={codes} updateCodes={updateCodes}
+          <Carrito cart={cart} products={products} setCart={setCart} codes={codes} setCodes={setCodes} updateCodes={updateCodes}
             orders={orders} updateOrders={updateOrders} updateProducts={updateProducts}
             showToast={showToast} onDone={() => setView("tienda")} {...commonProps} />
         )}
         {view === "verificar" && <Verificador codes={codes} {...commonProps} />}
+        {view === "pago-exitoso" && <PagoResultado tipo="exitoso" onDone={() => setView("tienda")} t={t} />}
+        {view === "pago-pendiente" && <PagoResultado tipo="pendiente" onDone={() => setView("tienda")} t={t} />}
+        {view === "pago-fallido" && <PagoResultado tipo="fallido" onDone={() => setView("carrito")} t={t} />}
         {view === "admin-login" && <AdminLogin onSuccess={() => { setIsAdmin(true); setView("admin"); }} onBack={() => setView("tienda")} t={t} />}
         {view === "admin" && isAdmin && (
           <AdminPanel products={products} updateProducts={updateProducts} codes={codes} updateCodes={updateCodes}
@@ -455,10 +481,11 @@ function Producto({ product, onAdd, onBack, t, exchangeRate }) {
 }
 
 /* ---- Carrito ---- */
-function Carrito({ cart, products, setCart, codes, updateCodes, orders, updateOrders, updateProducts, showToast, onDone, t, lang, exchangeRate }) {
+function Carrito({ cart, products, setCart, codes, setCodes, updateCodes, orders, updateOrders, updateProducts, showToast, onDone, t, lang, exchangeRate }) {
   const [step, setStep] = useState("revisar");
   const [buyer, setBuyer] = useState({ name: "", email: "" });
   const [lastOrder, setLastOrder] = useState(null);
+  const [processing, setProcessing] = useState(false);
 
   const items = cart.map((ci) => { const p = products.find((pp) => pp.id === ci.id); return p ? { ...p, qty: ci.qty } : null; }).filter(Boolean);
   const totalUSD = items.reduce((sum, i) => sum + i.price * i.qty, 0);
@@ -470,33 +497,50 @@ function Carrito({ cart, products, setCart, codes, updateCodes, orders, updateOr
 
   const confirmPurchase = async () => {
     if (!buyer.name.trim() || !buyer.email.trim()) { showToast(t.fillFields, "error"); return; }
-    const assigned = [], newlyInserted = [], updatedRows = [];
-    for (const item of items) {
-      for (let i = 0; i < item.qty; i++) {
-        let available = await findOneAvailableCode(item.id);
-        if (!available) {
-          let newCode;
-          do { newCode = generateCode(); } while (await codeExists(newCode));
-          available = { code: newCode, productId: item.id, sold: false, createdAt: new Date().toISOString() };
-          newlyInserted.push(available);
+    setProcessing(true);
+    try {
+      const assigned = [], newlyInserted = [], updatedRows = [];
+      for (const item of items) {
+        for (let i = 0; i < item.qty; i++) {
+          let available = await findOneAvailableCode(item.id);
+          if (!available) {
+            let newCode;
+            do { newCode = generateCode(); } while (await codeExists(newCode));
+            available = { code: newCode, productId: item.id, sold: false, createdAt: new Date().toISOString() };
+            newlyInserted.push(available);
+          }
+          available = { ...available, sold: true, soldAt: new Date().toISOString(), buyerName: buyer.name.trim(), buyerEmail: buyer.email.trim() };
+          updatedRows.push(available);
+          assigned.push({ code: available.code, productName: item.name });
         }
-        available = { ...available, sold: true, soldAt: new Date().toISOString(), buyerName: buyer.name.trim(), buyerEmail: buyer.email.trim() };
-        updatedRows.push(available);
-        assigned.push({ code: available.code, productName: item.name });
       }
+      if (newlyInserted.length > 0) await dbInsertCodes(newlyInserted.map((c) => ({ ...c, sold: false })));
+      for (const c of updatedRows) await updateCodeRemote(c);
+      const nextProducts = products.map((p) => { const item = items.find((i) => i.id === p.id); if (!item) return p; return { ...p, stock: Math.max(0, p.stock - item.qty) }; });
+      for (const item of items) { const p = nextProducts.find((pp) => pp.id === item.id); if (p) await updateStock(p.id, p.stock); }
+      const orderId = `ORD-${Date.now().toString(36).toUpperCase()}`;
+      const order = { id: orderId, buyer, items: items.map((i) => ({ id: i.id, name: i.name, qty: i.qty, price: i.price })), total: totalUSD, codes: assigned, createdAt: new Date().toISOString() };
+      await dbInsertOrder(order);
+
+      // Crear preferencia en Mercado Pago via Supabase Edge Function
+      const res = await fetch("https://apysmekdvsoxlcweclgw.supabase.co/functions/v1/create-preference", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map((i) => ({ id: i.id, name: i.name, qty: i.qty, price: i.price })),
+          buyer,
+          orderId,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.init_point) throw new Error("Sin link de pago");
+      setCart([]);
+      window.location.href = data.init_point;
+    } catch (err) {
+      console.error(err);
+      showToast(lang === "es" ? "Error al procesar el pago. Intentá de nuevo." : "Payment error. Please try again.", "error");
+      setProcessing(false);
     }
-    if (newlyInserted.length > 0) await dbInsertCodes(newlyInserted.map((c) => ({ ...c, sold: false })));
-    for (const c of updatedRows) await updateCodeRemote(c);
-    const nextCodes = [...codes];
-    for (const c of updatedRows) { const idx = nextCodes.findIndex((x) => x.code === c.code); if (idx >= 0) nextCodes[idx] = c; else nextCodes.push(c); }
-    setCodes ? null : null;
-    const nextProducts = products.map((p) => { const item = items.find((i) => i.id === p.id); if (!item) return p; return { ...p, stock: Math.max(0, p.stock - item.qty) }; });
-    for (const item of items) { const p = nextProducts.find((pp) => pp.id === item.id); if (p) await updateStock(p.id, p.stock); }
-    const order = { id: `ORD-${Date.now().toString(36).toUpperCase()}`, buyer, items: items.map((i) => ({ id: i.id, name: i.name, qty: i.qty, price: i.price })), total: totalUSD, codes: assigned, createdAt: new Date().toISOString() };
-    await dbInsertOrder(order);
-    setLastOrder(order);
-    setCart([]);
-    setStep("confirmado");
   };
 
   if (items.length === 0 && step === "revisar") return (
@@ -563,10 +607,34 @@ function Carrito({ cart, products, setCart, codes, updateCodes, orders, updateOr
             <span>{t.totalToPay}</span>
             <Price usd={totalUSD} exchangeRate={exchangeRate} />
           </div>
-          <button style={S.primaryBtn} onClick={confirmPurchase}>{t.confirmBtn}</button>
+          <button style={{ ...S.primaryBtn, ...(processing ? S.btnDisabled : {}) }} onClick={confirmPurchase} disabled={processing}>
+            {processing ? (lang === "es" ? "Procesando..." : "Processing...") : t.confirmBtn}
+          </button>
           <button style={S.ghostBtn} onClick={() => setStep("revisar")}>{t.goBack}</button>
         </div>
       )}
+    </div>
+  );
+}
+
+/* ---- Resultado de pago (retorno desde MP) ---- */
+function PagoResultado({ tipo, onDone, t }) {
+  const exitoso = tipo === "exitoso";
+  const pendiente = tipo === "pendiente";
+  return (
+    <div style={{ ...S.confirmWrap, textAlign: "center", maxWidth: 500, margin: "0 auto" }}>
+      <div style={{ fontSize: 56, marginBottom: 20 }}>
+        {exitoso ? "✓" : pendiente ? "⏳" : "✕"}
+      </div>
+      <h2 style={{ ...S.confirmTitle, color: exitoso ? COLORS.sage : pendiente ? COLORS.amber : COLORS.terracotta }}>
+        {exitoso ? t.pagoExitosoTitle : pendiente ? t.pagoPendienteTitle : t.pagoFallidoTitle}
+      </h2>
+      <p style={S.confirmText}>
+        {exitoso ? t.pagoExitosoText : pendiente ? t.pagoPendienteText : t.pagoFallidoText}
+      </p>
+      <button style={S.primaryBtn} onClick={onDone}>
+        {exitoso || pendiente ? t.pagoExitosoBtn : t.pagoFallidoBtn}
+      </button>
     </div>
   );
 }
