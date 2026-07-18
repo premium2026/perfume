@@ -21,7 +21,7 @@ import {
 
 const FONTS_LINK = "https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap";
 
-const ADMIN_PASSWORD = "esencia-original2026";
+const ADMIN_PASSWORD = "esencia2026";
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 function generateCode() {
@@ -372,7 +372,6 @@ export default function App() {
     <div style={S.appShell}>
       <FontLoad />
       <Header view={view} setView={setView} cartCount={cart.reduce((a, i) => a + i.qty, 0)} isAdmin={isAdmin} t={t} lang={lang} setLang={setLang} />
-      <ExchangeRateBanner exchangeRate={exchangeRate} t={t} />
       <main style={S.main}>
         {view === "tienda" && <Tienda products={products} onSelect={(p) => { setActiveProduct(p); setView("producto"); }} onAdd={addToCart} {...commonProps} />}
         {view === "producto" && activeProduct && <Producto product={activeProduct} onAdd={addToCart} onBack={() => setView("tienda")} {...commonProps} />}
@@ -487,6 +486,7 @@ function Tienda({ products, onSelect, onAdd, t, exchangeRate }) {
           </article>
         ))}
       </section>
+      <ExchangeRateBanner exchangeRate={exchangeRate} t={t} />
     </div>
   );
 }
@@ -1064,6 +1064,7 @@ const S = {
   cartBtn: { background: "none", border: `1px solid ${COLORS.line}`, color: COLORS.bone, fontSize: 13, cursor: "pointer", padding: "8px 16px", borderRadius: 2, position: "relative", fontFamily: bodyFont },
   cartBadge: { position: "absolute", top: -8, right: -8, background: COLORS.amber, color: COLORS.bg, fontSize: 11, fontWeight: 600, borderRadius: "50%", width: 18, height: 18, display: "flex", alignItems: "center", justifyContent: "center" },
   exchangeEditorBox: { background: COLORS.surface, border: `1px solid ${COLORS.line}`, padding: "20px 24px", marginBottom: 28 },
+  exchangeBanner: { borderTop: `1px solid ${COLORS.line}`, padding: "16px 0 40px", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" },
   exchangeLabel: { fontSize: 12, color: COLORS.boneMute, fontFamily: monoFont },
   exchangeValue: { fontSize: 13, color: COLORS.amberLight, fontFamily: monoFont },
   exchangeInput: { background: COLORS.bg, border: `1px solid ${COLORS.amber}`, color: COLORS.bone, padding: "4px 10px", fontSize: 13, fontFamily: monoFont, width: 100, outline: "none" },
