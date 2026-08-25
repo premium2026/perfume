@@ -16,7 +16,7 @@ import {
 } from "./supabaseClient";
 
 /* ============================================================
-   CLUVÉ — tienda de perfumes de autor
+   CHARDAUS — tienda de perfumes de autor
    ============================================================ */
 
 const FONTS_LINK = "https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap";
@@ -44,7 +44,7 @@ function formatDate(iso, lang) {
 /* ---------- Diccionario bilingüe ---------- */
 const T = {
   es: {
-    brand: "CLUVÉ",
+    brand: "CHARDAUS",
     verifyNav: "Verificar autenticidad",
     panel: "Panel",
     access: "Acceso tienda",
@@ -85,7 +85,7 @@ const T = {
     verifyBtn: "Verificar",
     verifying: "Verificando…",
     sealValid: "Producto Original",
-    sealExclusive: "Esta unidad pertenece a un lote limitado, formulado y embotellado a mano. Gracias por llevar una pieza genuina de CLUVÉ.",
+    sealExclusive: "Esta unidad pertenece a un lote limitado, formulado y embotellado a mano. Gracias por llevar una pieza genuina de CHARDAUS.",
     sealInvalid: "No pudimos confirmar este código",
     sealInvalidSub: (email) => `Revisá que esté bien escrito. Si el código es correcto y no figura como vendido por nosotros, escribinos a ${email}.`,
     soldOn: (date) => `vendido el ${date}`,
@@ -136,7 +136,7 @@ const T = {
     exchangeRate: "Tipo de cambio",
     exchangeLabel: "USD 1 =",
     exchangeHint: "Los precios se muestran en USD. El equivalente en ARS se calcula con este tipo de cambio.",
-    footerText: "CLUVÉ — perfumes de autor, hechos en lotes pequeños.",
+    footerText: "CHARDAUS — perfumes de autor, hechos en lotes pequeños.",
     pagoExitosoTitle: "¡Pago confirmado!",
     pagoExitosoText: "Tu pedido fue procesado correctamente. Los códigos de autenticidad de tus fragancias ya están activos.",
     pagoPendienteTitle: "Pago pendiente",
@@ -155,7 +155,7 @@ const T = {
     total: "Total",
   },
   en: {
-    brand: "CLUVÉ",
+    brand: "CHARDAUS",
     verifyNav: "Verify authenticity",
     panel: "Panel",
     access: "Store access",
@@ -196,7 +196,7 @@ const T = {
     verifyBtn: "Verify",
     verifying: "Verifying…",
     sealValid: "Original Product",
-    sealExclusive: "This unit belongs to a limited batch, formulated and hand-bottled. Thank you for carrying a genuine piece of CLUVÉ.",
+    sealExclusive: "This unit belongs to a limited batch, formulated and hand-bottled. Thank you for carrying a genuine piece of CHARDAUS.",
     sealInvalid: "We couldn't confirm this code",
     sealInvalidSub: (email) => `Check that it's written correctly. If the code is correct and doesn't appear as sold by us, write to ${email}.`,
     soldOn: (date) => `sold on ${date}`,
@@ -247,7 +247,7 @@ const T = {
     exchangeRate: "Exchange rate",
     exchangeLabel: "USD 1 =",
     exchangeHint: "Prices are shown in USD. The ARS equivalent is calculated using this exchange rate.",
-    footerText: "CLUVÉ — author fragrances, made in small batches.",
+    footerText: "CHARDAUS — author fragrances, made in small batches.",
     pagoExitosoTitle: "Payment confirmed!",
     pagoExitosoText: "Your order was processed successfully. The authenticity codes for your fragrances are now active.",
     pagoPendienteTitle: "Payment pending",
