@@ -1,6 +1,0 @@
-This favicon was generated using the following font:
-
-- Font Title: Krub
-- Font Author: undefined
-- Font Source: https://fonts.gstatic.com/s/krub/v11/sZlEdRyC6CRYZvo_KLF4R6gWaf8.ttf
-- Font License: undefined)
