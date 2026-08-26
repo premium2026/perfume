@@ -14,7 +14,7 @@ import {
 } from "./supabaseClient";
 
 /* ============================================================
-   ESENCIA — tienda de perfumes de autor + sello de autenticidad
+   CHARDAUS — tienda de perfumes de autor + sello de autenticidad
    ============================================================
    Paleta:
      fondo     #0F0D0C  (negro cálido)
@@ -196,7 +196,7 @@ function Header({ view, setView, cartCount, isAdmin }) {
     <header style={S.header}>
       <div style={S.headerInner}>
         <button style={S.brand} onClick={() => setView("tienda")} aria-label="Ir al inicio">
-          ESENCIA
+          CHARDAUS
         </button>
         <nav style={S.nav}>
           <button
@@ -225,7 +225,7 @@ function Footer({ setView }) {
   return (
     <footer style={S.footer}>
       <div style={S.footerInner}>
-        <p style={S.footerText}>Esencia — perfumes de autor, hechos en lotes pequeños.</p>
+        <p style={S.footerText}>Chardaus — perfumes de autor, hechos en lotes pequeños.</p>
         <button style={S.footerLink} onClick={() => setView("verificar")}>
           Verificar un código de envase ↗
         </button>
@@ -610,14 +610,14 @@ function SealResult({ checking, result }) {
         <div style={S.sealText}>
           {valid ? (
             <>
-              <p style={S.sealTitleValid}>Original Esencia</p>
+              <p style={S.sealTitleValid}>Original Chardaus</p>
               <p style={S.sealSub}>
                 {result.entry.productName ||
                   "Tu producto"} · vendido el {formatDate(result.entry.soldAt)}
               </p>
               <p style={S.sealExclusive}>
                 Esta unidad pertenece a un lote limitado, formulado y embotellado a mano. Gracias por llevar una pieza
-                genuina de Esencia.
+                genuina de Chardaus.
               </p>
             </>
           ) : (
