@@ -447,7 +447,8 @@ function Footer({ setView, t, isAdmin }) {
     <footer style={S.footer}>
       <div style={S.footerInner}>
         <p style={S.footerText}>{t.footerText}</p>
-        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
+          <a href="mailto:contacto@chardaus.com" style={S.footerContact}>contacto@chardaus.com</a>
           <button style={S.footerLink} onClick={() => setView("verificar")}>{t.verifyFooter}</button>
           <button style={S.adminFooterBtn} onClick={() => setView(isAdmin ? "admin" : "admin-login")}>⚙</button>
         </div>
@@ -1200,6 +1201,7 @@ const S = {
   footerInner: { maxWidth: 1100, margin: "0 auto", padding: "28px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 },
   footerText: { fontSize: 12, color: COLORS.boneMute, margin: 0 },
   footerLink: { background: "none", border: "none", color: COLORS.amber, fontSize: 12, cursor: "pointer", padding: 0, fontFamily: bodyFont },
+  footerContact: { color: COLORS.boneMute, fontSize: 12, textDecoration: "none", fontFamily: bodyFont, letterSpacing: "0.02em" },
   adminFooterBtn: { background: "none", border: "none", color: COLORS.line, fontSize: 14, cursor: "pointer", padding: "4px 6px", fontFamily: bodyFont, opacity: 0.5 },
   toast: { position: "fixed", bottom: 28, left: "50%", transform: "translateX(-50%)", background: COLORS.surfaceAlt, border: `1px solid ${COLORS.line}`, color: COLORS.bone, padding: "12px 22px", fontSize: 13, zIndex: 50 },
   toastOk: { borderColor: COLORS.sage, color: COLORS.sage },
