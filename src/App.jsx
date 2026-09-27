@@ -13,6 +13,7 @@ import {
   updateStock,
   loadExchangeRate,
   saveExchangeRate,
+  saveBuyerMessage,
 } from "./supabaseClient";
 
 /* ============================================================
@@ -151,6 +152,13 @@ const T = {
     fillAddress: "Completá la dirección de envío",
     yourCodes: "Tus códigos de autenticidad",
     codeEmailSent: "También te enviamos los códigos por email.",
+    personalizeTitle: "Personalizá tu frasco",
+    personalizeHint: "Escribí tu nombre, una dedicatoria o la frase que quieras. Quedará grabada para siempre en este código.",
+    personalizePlaceholder: "Ej: Para siempre tuyo · María · Con amor",
+    personalizeSave: "Guardar mensaje",
+    personalizeSaving: "Guardando...",
+    personalizeSuccess: "¡Mensaje guardado! Aparecerá cada vez que se verifique este código.",
+    personalizeError: "No se pudo guardar. Intentá de nuevo.",
     perUnit: "c/u",
     total: "Total",
   },
@@ -262,6 +270,13 @@ const T = {
     fillAddress: "Please fill in your shipping address",
     yourCodes: "Your authenticity codes",
     codeEmailSent: "We also sent your codes by email.",
+    personalizeTitle: "Personalize your bottle",
+    personalizeHint: "Write your name, a dedication, or any phrase you want. It will be saved forever to this code.",
+    personalizePlaceholder: "E.g.: Forever yours · María · With love",
+    personalizeSave: "Save message",
+    personalizeSaving: "Saving...",
+    personalizeSuccess: "Message saved! It will appear every time this code is verified.",
+    personalizeError: "Could not save. Please try again.",
     perUnit: "each",
     total: "Total",
   },
@@ -724,6 +739,26 @@ function Verificador({ codes, t, lang }) {
 
 function SealResult({ checking, result, t, lang }) {
   const valid = result && result.valid;
+  const [message, setMessage] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState(false);
+  const [localBuyerName, setLocalBuyerName] = useState(result?.entry?.buyerName || null);
+
+  const handleSave = async () => {
+    if (!message.trim()) return;
+    setSaving(true);
+    setSaveError(false);
+    const ok = await saveBuyerMessage(result.entry.code, message.trim());
+    if (ok) {
+      setLocalBuyerName(message.trim());
+      setSaved(true);
+    } else {
+      setSaveError(true);
+    }
+    setSaving(false);
+  };
+
   return (
     <div style={S.sealWrap}>
       <div style={{ ...S.sealRing, ...(checking ? S.sealRingChecking : valid ? S.sealRingValid : S.sealRingInvalid) }}>
@@ -737,13 +772,40 @@ function SealResult({ checking, result, t, lang }) {
             <>
               <p style={S.sealTitleValid}>{t.sealValid}</p>
               <p style={S.sealSub}>{result.entry.productName} · {t.soldOn(formatDate(result.entry.soldAt, lang))}</p>
-              {result.entry.buyerName && <p style={S.sealBuyerName}>{result.entry.buyerName}</p>}
+              {localBuyerName ? (
+                <p style={S.sealBuyerName}>{localBuyerName}</p>
+              ) : !saved ? (
+                <div style={S.personalizeBox}>
+                  <p style={S.personalizeTitle}>{t.personalizeTitle}</p>
+                  <p style={S.personalizeHint}>{t.personalizeHint}</p>
+                  <input
+                    style={S.personalizeInput}
+                    value={message}
+                    onChange={(e) => { setMessage(e.target.value); setSaveError(false); }}
+                    placeholder={t.personalizePlaceholder}
+                    maxLength={80}
+                  />
+                  <button
+                    style={{ ...S.primaryBtn, ...(saving || !message.trim() ? S.btnDisabled : {}), marginTop: 12 }}
+                    onClick={handleSave}
+                    disabled={saving || !message.trim()}
+                  >
+                    {saving ? t.personalizeSaving : t.personalizeSave}
+                  </button>
+                  {saveError && <p style={{ color: COLORS.terracotta, fontSize: 12, marginTop: 8 }}>{t.personalizeError}</p>}
+                </div>
+              ) : (
+                <>
+                  <p style={S.sealBuyerName}>{localBuyerName}</p>
+                  <p style={{ color: COLORS.sage, fontSize: 12, marginTop: 8 }}>{t.personalizeSuccess}</p>
+                </>
+              )}
               <p style={S.sealExclusive}>{t.sealExclusive}</p>
             </>
           ) : (
             <>
               <p style={S.sealTitleInvalid}>{t.sealInvalid}</p>
-              <p style={S.sealSub}>{t.sealInvalidSub("soporte@chardaus.com")}</p>
+              <p style={S.sealSub}>{t.sealInvalidSub("contacto@chardaus.com")}</p>
             </>
           )}
         </div>
@@ -1151,6 +1213,10 @@ const S = {
   sealTitleInvalid: { fontFamily: displayFont, fontSize: 22, color: COLORS.terracotta, fontWeight: 500, margin: "0 0 8px" },
   sealSub: { fontSize: 13, color: COLORS.boneMute, margin: "0 0 14px" },
   sealBuyerName: { fontFamily: displayFont, fontSize: 20, color: COLORS.amberLight, fontStyle: "italic", margin: "10px 0 4px", letterSpacing: "0.02em" },
+  personalizeBox: { marginTop: 20, marginBottom: 8, textAlign: "left", maxWidth: 380 },
+  personalizeTitle: { fontFamily: displayFont, fontSize: 18, color: COLORS.bone, margin: "0 0 6px", fontWeight: 500 },
+  personalizeHint: { fontSize: 12, color: COLORS.boneMute, lineHeight: 1.6, margin: "0 0 12px" },
+  personalizeInput: { width: "100%", background: COLORS.surface, border: `1px solid ${COLORS.amber}`, color: COLORS.bone, padding: "11px 14px", fontSize: 14, fontFamily: bodyFont, outline: "none", boxSizing: "border-box" },
   sealExclusive: { fontSize: 13, lineHeight: 1.7, color: COLORS.bone },
   loginWrap: { padding: "56px 0 80px", maxWidth: 420 },
   adminWrap: { padding: "40px 0 80px" },
