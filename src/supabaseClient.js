@@ -176,3 +176,15 @@ export async function saveExchangeRate(rate) {
   const { error } = await supabase.from("settings").upsert({ key: "exchange_rate", value: String(rate) });
   if (error) console.error("Error guardando tipo de cambio", error);
 }
+
+/* ---------- mensaje del cliente en código ---------- */
+
+export async function saveBuyerMessage(code, message) {
+  const { error } = await supabase
+    .from("codes")
+    .update({ buyer_name: message })
+    .eq("code", code)
+    .is("buyer_name", null); // solo si no tiene mensaje previo
+  if (error) console.error("Error guardando mensaje", error);
+  return !error;
+}
