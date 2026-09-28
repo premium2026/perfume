@@ -41,6 +41,7 @@ function rowToCode(row) {
     soldAt: row.sold_at,
     buyerName: row.buyer_name,
     buyerEmail: row.buyer_email,
+    customMessage: row.custom_message || null,
   };
 }
 
@@ -177,14 +178,14 @@ export async function saveExchangeRate(rate) {
   if (error) console.error("Error guardando tipo de cambio", error);
 }
 
-/* ---------- mensaje del cliente en código ---------- */
+/* ---------- mensaje personalizado del cliente ---------- */
 
 export async function saveBuyerMessage(code, message) {
   const { error } = await supabase
     .from("codes")
-    .update({ buyer_name: message })
+    .update({ custom_message: message })
     .eq("code", code)
-    .is("buyer_name", null); // solo si no tiene mensaje previo
+    .is("custom_message", null); // solo si no tiene mensaje previo
   if (error) console.error("Error guardando mensaje", error);
   return !error;
 }

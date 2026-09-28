@@ -743,7 +743,7 @@ function SealResult({ checking, result, t, lang }) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState(false);
-  const [localBuyerName, setLocalBuyerName] = useState(result?.entry?.buyerName || null);
+  const [localBuyerName, setLocalBuyerName] = useState(result?.entry?.customMessage || null);
 
   const handleSave = async () => {
     if (!message.trim()) return;
