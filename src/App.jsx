@@ -14,6 +14,7 @@ import {
   loadExchangeRate,
   saveExchangeRate,
   saveBuyerMessage,
+  findCodeByValue,
 } from "./supabaseClient";
 
 /* ============================================================
@@ -395,7 +396,7 @@ export default function App() {
             orders={orders} updateOrders={updateOrders} updateProducts={updateProducts}
             showToast={showToast} onDone={() => setView("tienda")} {...commonProps} />
         )}
-        {view === "verificar" && <Verificador codes={codes} {...commonProps} />}
+        {view === "verificar" && <Verificador t={t} lang={lang} />}
         {view === "pago-exitoso" && <PagoResultado tipo="exitoso" onDone={() => setView("tienda")} t={t} order={returnOrder} />}
         {view === "pago-pendiente" && <PagoResultado tipo="pendiente" onDone={() => setView("tienda")} t={t} order={null} />}
         {view === "pago-fallido" && <PagoResultado tipo="fallido" onDone={() => setView("carrito")} t={t} order={null} />}
@@ -706,21 +707,19 @@ function PagoResultado({ tipo, onDone, t, order }) {
 }
 
 /* ---- Verificador ---- */
-function Verificador({ codes, t, lang }) {
+function Verificador({ t, lang }) {
   const [input, setInput] = useState("");
   const [result, setResult] = useState(null);
   const [checking, setChecking] = useState(false);
 
-  const check = (e) => {
+  const check = async (e) => {
     e.preventDefault();
     const clean = input.trim().toUpperCase().replace(/\s/g, "");
     if (!clean.length) return;
     setChecking(true);
-    setTimeout(() => {
-      const found = codes.find((c) => c.code === clean);
-      setResult(found && found.sold ? { valid: true, entry: found } : { valid: false });
-      setChecking(false);
-    }, 550);
+    const found = await findCodeByValue(clean);
+    setResult(found && found.sold ? { valid: true, entry: found } : { valid: false });
+    setChecking(false);
   };
 
   return (

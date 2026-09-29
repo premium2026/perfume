@@ -189,3 +189,25 @@ export async function saveBuyerMessage(code, message) {
   if (error) console.error("Error guardando mensaje", error);
   return !error;
 }
+
+/* ---------- buscar código específico para verificador ---------- */
+
+export async function findCodeByValue(code) {
+  const { data, error } = await supabase
+    .from("codes")
+    .select("*, products(name)")
+    .eq("code", code)
+    .maybeSingle();
+  if (error || !data) return null;
+  return {
+    code: data.code,
+    productId: data.product_id,
+    productName: data.products?.name || null,
+    sold: data.sold,
+    createdAt: data.created_at,
+    soldAt: data.sold_at,
+    buyerName: data.buyer_name,
+    buyerEmail: data.buyer_email,
+    customMessage: data.custom_message || null,
+  };
+}
