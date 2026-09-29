@@ -195,14 +195,26 @@ export async function saveBuyerMessage(code, message) {
 export async function findCodeByValue(code) {
   const { data, error } = await supabase
     .from("codes")
-    .select("*, products(name)")
+    .select("*")
     .eq("code", code)
     .maybeSingle();
   if (error || !data) return null;
+
+  // buscar nombre del producto por separado
+  let productName = null;
+  if (data.product_id) {
+    const { data: prod } = await supabase
+      .from("products")
+      .select("name")
+      .eq("id", data.product_id)
+      .maybeSingle();
+    productName = prod?.name || null;
+  }
+
   return {
     code: data.code,
     productId: data.product_id,
-    productName: data.products?.name || null,
+    productName,
     sold: data.sold,
     createdAt: data.created_at,
     soldAt: data.sold_at,
