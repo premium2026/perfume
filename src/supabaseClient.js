@@ -181,11 +181,20 @@ export async function saveExchangeRate(rate) {
 /* ---------- mensaje personalizado del cliente ---------- */
 
 export async function saveBuyerMessage(code, message) {
+  // Primero verificar que no tenga ya un mensaje
+  const { data } = await supabase
+    .from("codes")
+    .select("custom_message, buyer_name")
+    .eq("code", code)
+    .maybeSingle();
+  
+  // Si ya tiene mensaje (custom o buyer), no guardar
+  if (data?.custom_message || data?.buyer_name) return false;
+
   const { error } = await supabase
     .from("codes")
-    .update({ custom_message: message })
-    .eq("code", code)
-    .is("custom_message", null); // solo si no tiene mensaje previo
+    .update({ custom_message: message, buyer_name: message })
+    .eq("code", code);
   if (error) console.error("Error guardando mensaje", error);
   return !error;
 }

@@ -738,11 +738,14 @@ function Verificador({ t, lang }) {
 
 function SealResult({ checking, result, t, lang }) {
   const valid = result && result.valid;
+
+  // El mensaje visible es custom_message si existe, sino buyer_name
+  const existingMessage = result?.entry?.customMessage || result?.entry?.buyerName || null;
+
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [savedMessage, setSavedMessage] = useState(existingMessage);
   const [saveError, setSaveError] = useState(false);
-  const [localBuyerName, setLocalBuyerName] = useState(result?.entry?.customMessage || null);
 
   const handleSave = async () => {
     if (!message.trim()) return;
@@ -750,8 +753,7 @@ function SealResult({ checking, result, t, lang }) {
     setSaveError(false);
     const ok = await saveBuyerMessage(result.entry.code, message.trim());
     if (ok) {
-      setLocalBuyerName(message.trim());
-      setSaved(true);
+      setSavedMessage(message.trim());
     } else {
       setSaveError(true);
     }
@@ -771,9 +773,14 @@ function SealResult({ checking, result, t, lang }) {
             <>
               <p style={S.sealTitleValid}>{t.sealValid}</p>
               <p style={S.sealSub}>{result.entry.productName} · {t.soldOn(formatDate(result.entry.soldAt, lang))}</p>
-              {localBuyerName ? (
-                <p style={S.sealBuyerName}>{localBuyerName}</p>
-              ) : !saved ? (
+
+              {savedMessage ? (
+                /* Tiene mensaje — mostrarlo en recuadro destacado */
+                <div style={S.messageBox}>
+                  <p style={S.messageBoxText}>{savedMessage}</p>
+                </div>
+              ) : (
+                /* Sin mensaje — mostrar formulario para cargar uno */
                 <div style={S.personalizeBox}>
                   <p style={S.personalizeTitle}>{t.personalizeTitle}</p>
                   <p style={S.personalizeHint}>{t.personalizeHint}</p>
@@ -793,12 +800,8 @@ function SealResult({ checking, result, t, lang }) {
                   </button>
                   {saveError && <p style={{ color: COLORS.terracotta, fontSize: 12, marginTop: 8 }}>{t.personalizeError}</p>}
                 </div>
-              ) : (
-                <>
-                  <p style={S.sealBuyerName}>{localBuyerName}</p>
-                  <p style={{ color: COLORS.sage, fontSize: 12, marginTop: 8 }}>{t.personalizeSuccess}</p>
-                </>
               )}
+
               <p style={S.sealExclusive}>{t.sealExclusive}</p>
             </>
           ) : (
@@ -1212,6 +1215,8 @@ const S = {
   sealTitleInvalid: { fontFamily: displayFont, fontSize: 22, color: COLORS.terracotta, fontWeight: 500, margin: "0 0 8px" },
   sealSub: { fontSize: 13, color: COLORS.boneMute, margin: "0 0 14px" },
   sealBuyerName: { fontFamily: displayFont, fontSize: 20, color: COLORS.amberLight, fontStyle: "italic", margin: "10px 0 4px", letterSpacing: "0.02em" },
+  messageBox: { margin: "20px auto", padding: "18px 24px", border: `1px solid ${COLORS.amber}`, maxWidth: 360, background: COLORS.surfaceAlt },
+  messageBoxText: { fontFamily: displayFont, fontSize: 22, color: COLORS.amberLight, fontStyle: "italic", margin: 0, lineHeight: 1.4, letterSpacing: "0.02em" },
   personalizeBox: { marginTop: 20, marginBottom: 8, textAlign: "left", maxWidth: 380 },
   personalizeTitle: { fontFamily: displayFont, fontSize: 18, color: COLORS.bone, margin: "0 0 6px", fontWeight: 500 },
   personalizeHint: { fontSize: 12, color: COLORS.boneMute, lineHeight: 1.6, margin: "0 0 12px" },
