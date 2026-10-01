@@ -718,6 +718,7 @@ function Verificador({ t, lang }) {
     if (!clean.length) return;
     setChecking(true);
     const found = await findCodeByValue(clean);
+    console.log("findCodeByValue result:", JSON.stringify(found));
     setResult(found && found.sold ? { valid: true, entry: found } : { valid: false });
     setChecking(false);
   };
