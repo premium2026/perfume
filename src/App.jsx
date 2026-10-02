@@ -718,7 +718,6 @@ function Verificador({ t, lang }) {
     if (!clean.length) return;
     setChecking(true);
     const found = await findCodeByValue(clean);
-    console.log("findCodeByValue result:", JSON.stringify(found));
     setResult(found && found.sold ? { valid: true, entry: found } : { valid: false });
     setChecking(false);
   };
@@ -740,13 +739,18 @@ function Verificador({ t, lang }) {
 function SealResult({ checking, result, t, lang }) {
   const valid = result && result.valid;
 
-  // El mensaje visible es custom_message si existe, sino buyer_name
-  const existingMessage = result?.entry?.customMessage || result?.entry?.buyerName || null;
-
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
-  const [savedMessage, setSavedMessage] = useState(existingMessage);
+  const [savedMessage, setSavedMessage] = useState(null);
   const [saveError, setSaveError] = useState(false);
+
+  // Inicializar el mensaje cuando llegan los datos del resultado
+  useEffect(() => {
+    if (result?.entry) {
+      const msg = result.entry.customMessage || result.entry.buyerName || null;
+      setSavedMessage(msg);
+    }
+  }, [result]);
 
   const handleSave = async () => {
     if (!message.trim()) return;
