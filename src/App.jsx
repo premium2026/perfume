@@ -741,16 +741,12 @@ function SealResult({ checking, result, t, lang }) {
 
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
-  const [savedMessage, setSavedMessage] = useState(null);
+  const [newlySaved, setNewlySaved] = useState(null);
   const [saveError, setSaveError] = useState(false);
 
-  // Inicializar el mensaje cuando llegan los datos del resultado
-  useEffect(() => {
-    if (result?.entry) {
-      const msg = result.entry.customMessage || result.entry.buyerName || null;
-      setSavedMessage(msg);
-    }
-  }, [result]);
+  // Mensaje existente directo desde los datos — sin estado intermedio
+  const existingMsg = result?.entry?.customMessage || result?.entry?.buyerName || null;
+  const savedMessage = newlySaved || existingMsg;
 
   const handleSave = async () => {
     if (!message.trim()) return;
@@ -758,7 +754,7 @@ function SealResult({ checking, result, t, lang }) {
     setSaveError(false);
     const ok = await saveBuyerMessage(result.entry.code, message.trim());
     if (ok) {
-      setSavedMessage(message.trim());
+      setNewlySaved(message.trim());
     } else {
       setSaveError(true);
     }
